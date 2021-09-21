@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App</title>
+  <style>
+    html,
+    body {
+      font-size: 1.3em;
+    }
+
+    .you {
+      color: blue;
+    }
+
+    .You {
+      heiht: 1.4em;
+      background: blue;
+      color: white;
+      border-radius: 5px;
+      padding: 4px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1 id="h1">CHAT APP</h1>
+
+  <ul id='messages'></ul>
+
+  <form id="chat-form">
+    <input type="text" id='chat-mes'>
+    <button id=send-chat>Send</button>
+  </form>
+
+  <script src="/socket.io/socket.io.js">
+  </script>
+  <script>
+    const socket = io();
+
+    h1 = document.getElementById("h1");
+
+    var id = 0;
+    var name = "";
+
+    socket.on('user-id', (user_id) => {
+      id = user_id;
+      if (name == "") {
+        name = prompt("Your name?", "user " + id);
+      }
+    });
+    // const name = prompt("Your name?", "anonymous " + id);
+
+
+    const chatForm = document.querySelector("#chat-form");
+    const chatMes = document.querySelector("#chat-mes");
+
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const message = chatMes.value
+      socket.emit('on-chat', {
+        name,
+        message
+      });
+      chatMes.value = "";
+    });
+
+    const messages = document.querySelector("#messages");
+    socket.on('user-chat', (message) => {
+      const chatItem = document.createElement('li');
+
+      if (message.name == name) {
+        chatItem.className = 'you';
+        chatItem.textContent = "You";
+      } else {
+        chatItem.textContent = message.name;
+      }
+      chatItem.textContent += ": " + message.message;
+      messages.appendChild(chatItem);
+
+
+    });
+  </script>
+</body>
+
+</html>
